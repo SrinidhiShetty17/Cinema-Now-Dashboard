@@ -2,6 +2,10 @@ import streamlit as st
 import sys
 import os
 from dotenv import load_dotenv
+from utils.omdb_api import get_ratings
+from visuals.charts import ratings_bar_chart
+
+
 
 # -------------------------------------------------
 # Fix Python path so utils can be imported
@@ -11,15 +15,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
 sys.path.append(PROJECT_ROOT)
 
 from utils.tmdb_api import search_movie, get_movie_details
-
-# -------------------------------------------------
-# Load environment variables
-# -------------------------------------------------
 load_dotenv()
-
-# -------------------------------------------------
-# Streamlit App Config
-# -------------------------------------------------
 st.set_page_config(
     page_title="Cinema Now Dashboard",
     layout="wide"
@@ -35,16 +31,12 @@ st.markdown(
     """
 )
 
-# -------------------------------------------------
-# Movie Search Form (IMPORTANT)
-# -------------------------------------------------
+# Movie Search Form 
 with st.form("movie_search_form"):
     movie_name = st.text_input("Enter a movie name")
     submitted = st.form_submit_button("Search")
 
-# -------------------------------------------------
 # Handle Search
-# -------------------------------------------------
 if submitted and movie_name:
     movie = search_movie(movie_name)
 
@@ -78,6 +70,23 @@ if submitted and movie_name:
                 st.markdown(f"**Genres:** {', '.join(genres)}")
             else:
                 st.markdown("**Genres:** N/A")
+       # --- Ratings ---
+            ratings = get_ratings(
+                title=details.get("title"),
+                year=(details.get("release_date", "")[:4] or None)
+            )
 
+            st.markdown("### ⭐ Ratings")
+
+            if ratings:
+                chart = ratings_bar_chart(ratings)
+                if chart:
+                    st.plotly_chart(chart, use_container_width=True)
+                else:
+                    st.write("Ratings available, but could not be visualized.")
+            else:
+                st.write("Ratings not available.")
+
+                
 elif submitted:
     st.error("Movie not found. Try another title.")
