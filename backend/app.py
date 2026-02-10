@@ -9,6 +9,10 @@ from utils.tmdb_api import get_trending_regions
 from utils.tmdb_api import get_movie_reviews
 from utils.sentiment import analyze_sentiment
 
+def section(title: str):
+    st.markdown("---")
+    st.markdown(f"## {title}")
+
 # -------------------------------------------------
 # Fix Python path 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -48,7 +52,8 @@ if submitted and movie_name:
             st.error("Unable to fetch movie details. Please try again.")
             st.stop()
 
-        col1, col2 = st.columns([1, 2])
+        with st.container():
+            col1, col2 = st.columns([1, 2])
 
         # Poster
         with col1:
@@ -77,8 +82,7 @@ if submitted and movie_name:
                 year=(details.get("release_date", "")[:4] or None)
             )
 
-            st.markdown("### ⭐ Ratings")
-
+            section("⭐ Ratings")
             if ratings:
                 chart = ratings_bar_chart(ratings)
                 if chart:
@@ -88,7 +92,7 @@ if submitted and movie_name:
             else:
                 st.write("Ratings not available.")
         # --- Streaming Platforms ---
-            st.markdown("### 📺 Where to Watch")
+            section("📺 Where to Watch")
 
             region = st.selectbox("Region", ["IN", "US"])
 
@@ -118,7 +122,7 @@ if submitted and movie_name:
             else:
                 st.write("No availability information for this region.")
         # --- Regional Interest ---
-            st.markdown("### 🌍 Regions with High Audience Interest")
+            section("🌍 Regions with High Audience Interest")
 
             trending_regions = get_trending_regions(details)
 
@@ -128,7 +132,7 @@ if submitted and movie_name:
             else:
                 st.write("Audience interest data not available.")
         # --- Reviews & Sentiment ---
-            st.markdown("### 📝 Reviews & Sentiment")
+            section("📝 Reviews & Sentiment")
 
             reviews = get_movie_reviews(details["id"])
 
@@ -143,7 +147,7 @@ if submitted and movie_name:
                     sentiment_summary[sentiment] += 1
 
                     with st.expander(f"Review by {author} ({sentiment})"):
-                        st.write(content[:800] + ("..." if len(content) > 800 else ""))
+                        st.write(content[:500] + ("..." if len(content) > 500 else ""))
                         st.caption(f"Sentiment score: {round(score, 2)}")
 
                 st.markdown("#### Overall Sentiment")
@@ -152,7 +156,6 @@ if submitted and movie_name:
 
             else:
                 st.write("No reviews available.")
-
-
+                
 elif submitted:
     st.error("Movie not found. Try another title.")
