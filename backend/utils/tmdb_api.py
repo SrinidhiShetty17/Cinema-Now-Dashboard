@@ -115,4 +115,25 @@ def get_trending_regions(movie_details: dict):
             regions.add(region_map[code])
 
     return list(regions)
+def get_movie_reviews(movie_id: int, max_reviews: int = 5):
+    """
+    Fetch user reviews for a movie from TMDB.
+    """
+    if not TMDB_API_KEY or not movie_id:
+        return []
+
+    url = f"{BASE_URL}/movie/{movie_id}/reviews"
+    params = {"api_key": TMDB_API_KEY}
+
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+        reviews = data.get("results", [])[:max_reviews]
+        return reviews
+
+    except httpx.HTTPError:
+        return []
 

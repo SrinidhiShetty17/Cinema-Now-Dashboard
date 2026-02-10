@@ -6,6 +6,9 @@ from utils.omdb_api import get_ratings
 from visuals.charts import ratings_bar_chart
 from utils.tmdb_api import get_streaming_providers
 from utils.tmdb_api import get_trending_regions
+from utils.tmdb_api import get_movie_reviews
+from utils.sentiment import analyze_sentiment
+
 # -------------------------------------------------
 # Fix Python path 
 CURRENT_DIR = os.path.dirname(__file__)
@@ -124,6 +127,32 @@ if submitted and movie_name:
                     st.write(f"• {region}")
             else:
                 st.write("Audience interest data not available.")
+        # --- Reviews & Sentiment ---
+            st.markdown("### 📝 Reviews & Sentiment")
+
+            reviews = get_movie_reviews(details["id"])
+
+            if reviews:
+                sentiment_summary = {"Positive": 0, "Neutral": 0, "Negative": 0}
+
+                for review in reviews:
+                    content = review.get("content", "")
+                    author = review.get("author", "Anonymous")
+
+                    sentiment, score = analyze_sentiment(content)
+                    sentiment_summary[sentiment] += 1
+
+                    with st.expander(f"Review by {author} ({sentiment})"):
+                        st.write(content[:800] + ("..." if len(content) > 800 else ""))
+                        st.caption(f"Sentiment score: {round(score, 2)}")
+
+                st.markdown("#### Overall Sentiment")
+                for k, v in sentiment_summary.items():
+                    st.write(f"{k}: {v}")
+
+            else:
+                st.write("No reviews available.")
+
 
 elif submitted:
     st.error("Movie not found. Try another title.")
