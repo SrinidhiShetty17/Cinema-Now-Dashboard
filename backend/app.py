@@ -8,7 +8,6 @@ from utils.tmdb_api import get_streaming_providers
 from utils.tmdb_api import get_trending_regions
 # -------------------------------------------------
 # Fix Python path 
-# -------------------------------------------------
 CURRENT_DIR = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
 sys.path.append(PROJECT_ROOT)
