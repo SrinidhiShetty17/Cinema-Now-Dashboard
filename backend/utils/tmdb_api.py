@@ -2,9 +2,7 @@ import os
 import httpx
 from pathlib import Path
 from dotenv import load_dotenv
-
 # -------------------------------------------------
-# Load .env explicitly from PROJECT ROOT
 # -------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENV_PATH = PROJECT_ROOT / ".env"
