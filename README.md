@@ -61,7 +61,7 @@ Cinema-Now-Dashboard/
 
 This app is deployed using Streamlit Community Cloud.
 
-Live Demo: 
+Live Demo: https://cinema-now-dashboard.streamlit.app/
 
 ## 📸 Screenshots
 
