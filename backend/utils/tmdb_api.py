@@ -63,3 +63,58 @@ def get_movie_details(movie_id: int):
 
     except httpx.HTTPError:
         return None
+
+def get_streaming_providers(movie_id: int, region: str = "IN"):
+    """
+    Fetch streaming, rent, and buy providers for a movie by region.
+    """
+    if not TMDB_API_KEY or not movie_id:
+        return {}
+
+    url = f"{BASE_URL}/movie/{movie_id}/watch/providers"
+    params = {"api_key": TMDB_API_KEY}
+
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+        region_data = data.get("results", {}).get(region, {})
+
+        return {
+            "streaming": [p["provider_name"] for p in region_data.get("flatrate", [])],
+            "rent": [p["provider_name"] for p in region_data.get("rent", [])],
+            "buy": [p["provider_name"] for p in region_data.get("buy", [])],
+        }
+
+    except httpx.HTTPError:
+        return {}
+
+def get_trending_regions(movie_details: dict):
+    """
+    Infer regions with high audience interest using release countries.
+    """
+    if not movie_details:
+        return []
+
+    region_map = {
+        "IN": "India",
+        "US": "United States",
+        "GB": "United Kingdom",
+        "CA": "Canada",
+        "AU": "Australia",
+        "FR": "France",
+        "DE": "Germany",
+    }
+
+    regions = set()
+
+    # Use production countries as a proxy
+    for country in movie_details.get("production_countries", []):
+        code = country.get("iso_3166_1")
+        if code in region_map:
+            regions.add(region_map[code])
+
+    return list(regions)
+

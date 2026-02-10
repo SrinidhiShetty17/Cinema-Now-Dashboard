@@ -4,6 +4,9 @@ import os
 from dotenv import load_dotenv
 from utils.omdb_api import get_ratings
 from visuals.charts import ratings_bar_chart
+from utils.tmdb_api import get_streaming_providers
+from utils.tmdb_api import get_trending_regions
+
 
 
 
@@ -86,7 +89,46 @@ if submitted and movie_name:
                     st.write("Ratings available, but could not be visualized.")
             else:
                 st.write("Ratings not available.")
+        # --- Streaming Platforms ---
+            st.markdown("### 📺 Where to Watch")
 
-                
+            region = st.selectbox("Region", ["IN", "US"])
+
+            providers = get_streaming_providers(
+                movie_id=details["id"],
+                region=region
+            )
+
+            if providers:
+                if providers["streaming"]:
+                    st.markdown("**Streaming:**")
+                    for p in providers["streaming"]:
+                        st.write(f"• {p}")
+
+                if providers["rent"]:
+                    st.markdown("**Rent:**")
+                    for p in providers["rent"]:
+                        st.write(f"• {p}")
+
+                if providers["buy"]:
+                    st.markdown("**Buy:**")
+                    for p in providers["buy"]:
+                        st.write(f"• {p}")
+
+                if not any(providers.values()):
+                    st.write("No availability information for this region.")
+            else:
+                st.write("No availability information for this region.")
+        # --- Regional Interest ---
+            st.markdown("### 🌍 Regions with High Audience Interest")
+
+            trending_regions = get_trending_regions(details)
+
+            if trending_regions:
+                for region in trending_regions:
+                    st.write(f"• {region}")
+            else:
+                st.write("Audience interest data not available.")
+
 elif submitted:
     st.error("Movie not found. Try another title.")
